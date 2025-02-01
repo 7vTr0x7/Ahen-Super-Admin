@@ -57,12 +57,12 @@ const Dashboard = () => {
       <div className="mt-3 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-3 3xl:grid-cols-6">
         <Widget
           icon={<IoDocuments className="h-6 w-6" />}
-          title={"Vendor Customers"}
+          title={"Total Customers"}
           subtitle={data.customerCount}
         />
         <Widget
           icon={<MdDashboard className="h-6 w-6" />}
-          title={"Vendor Subadmins"}
+          title={"Total Subadmins"}
           subtitle={data.subadminCount}
         />
         <Widget
@@ -72,12 +72,18 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Display last ten customers */}
+      {/* Display last ten customers in a grid */}
       <div className="mt-5">
-        <h2 className="text-xl font-semibold">Last Ten Customers</h2>
-        <ul className="mt-3">
+        <h2 className="mb-4 text-xl font-semibold">Last Ten Customers</h2>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {data.lastTenCustomers.map((customer, index) => (
-            <li key={index} className="border-b py-2">
+            <div
+              key={index}
+              className="flex flex-col rounded-lg border bg-white p-4 shadow-lg"
+            >
+              <h3 className="text-lg font-semibold text-gray-800">
+                Customer {index + 1}
+              </h3>
               <p>
                 <strong>Email:</strong> {customer.email}
               </p>
@@ -88,9 +94,9 @@ const Dashboard = () => {
                 <strong>Created At:</strong>{" "}
                 {new Date(customer.created_at).toLocaleString()}
               </p>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import SubAdmins from "components/SubAdmins";
 import { MdHome, MdLock, MdPerson } from "react-icons/md";
 import ListOfPayments from "components/ListOfPayments";
 import LicenseProgress from "components/LicenseProgress";
+import Notifications from "components/Notifications";
 
 // Initial routes array
 const allRoutes = [
@@ -50,6 +51,13 @@ const allRoutes = [
     path: "purchased-courses",
     icon: <MdPerson className="h-6 w-6" />,
     component: <ListOfPayments />,
+  },
+  {
+    name: "Notifications",
+    layout: "/admin",
+    path: "notifications",
+    icon: <MdPerson className="h-6 w-6" />,
+    component: <Notifications />,
   },
   {
     name: "Sub Admins",
