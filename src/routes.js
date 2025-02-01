@@ -1,7 +1,5 @@
 // Admin Imports
 import MainDashboard from "views/admin/default";
-import Profile from "views/admin/profile";
-import DataTables from "views/admin/tables";
 import DrivingLicense from "./components/DrivingLicense/PageOne";
 import LearningLicense from "./components/LearningLicense/PageOne";
 
@@ -9,10 +7,11 @@ import LearningLicense from "./components/LearningLicense/PageOne";
 import SignIn from "views/auth/SignIn";
 
 // Icon Imports
-import { MdBarChart, MdHome, MdLock, MdPerson } from "react-icons/md";
-import DrivingCustomers from "components/customers/DrivingCustomers";
-import LearningCustomers from "components/customers/LearningCutomers";
+import Customers from "components/customers/Customers";
 import SubAdmins from "components/SubAdmins";
+import { MdHome, MdLock, MdPerson } from "react-icons/md";
+import ListOfPayments from "components/ListOfPayments";
+import LicenseProgress from "components/LicenseProgress";
 
 // Initial routes array
 const allRoutes = [
@@ -24,26 +23,33 @@ const allRoutes = [
     component: <MainDashboard />,
   },
   {
-    name: "Driving Customers",
+    name: "Customers",
     layout: "/admin",
-    path: "driving-customer",
+    path: "customers",
     icon: <MdPerson className="h-6 w-6" />,
-    component: <DrivingCustomers />,
+    component: <Customers />,
   },
 
   {
-    name: "Driving License",
+    name: "License Progress",
     layout: "/admin",
-    path: "driving-license",
+    path: "license-progress",
     icon: <MdPerson className="h-6 w-6" />,
-    component: <DrivingLicense />,
+    component: <LicenseProgress />,
   },
   {
-    name: "Learning License",
+    name: "List Of Payments",
     layout: "/admin",
-    path: "learning-license",
+    path: "list-payments",
     icon: <MdPerson className="h-6 w-6" />,
-    component: <LearningLicense />,
+    component: <ListOfPayments />,
+  },
+  {
+    name: "Purchased Courses",
+    layout: "/admin",
+    path: "purchased-courses",
+    icon: <MdPerson className="h-6 w-6" />,
+    component: <ListOfPayments />,
   },
   {
     name: "Sub Admins",
@@ -61,18 +67,19 @@ const allRoutes = [
   },
 ];
 
-/// Filter the routes based on the presence of vendorId or subadmin
-const vendorId = localStorage.getItem("vendorId");
-const subadmin = localStorage.getItem("subadmin");
+// Get the current user's role and page access from localStorage or your app state (e.g., Redux or context)
+const adminToken = localStorage.getItem("adminToken");
+const adminRole = localStorage.getItem("adminRole");
+const pageAccess = localStorage.getItem("pageAccess");
 
 let filteredRoutes = allRoutes;
 
-if (subadmin) {
+if (adminRole === "sub-admin" && pageAccess) {
   try {
-    const { page_access } = JSON.parse(subadmin);
+    const parsedPageAccess = JSON.parse(pageAccess);
 
-    if (page_access) {
-      const accessiblePaths = page_access
+    if (parsedPageAccess) {
+      const accessiblePaths = parsedPageAccess
         .split(",")
         .map((path) => path.trim().replace(/_/g, "-"));
 
@@ -81,11 +88,12 @@ if (subadmin) {
       );
     }
   } catch (error) {
-    console.error("Error parsing subadmin data:", error);
+    console.error("Error parsing sub-admin page access:", error);
   }
 }
 
-const routes = vendorId
+// Show routes for logged-in admins and remove the "Sign In" route
+const routes = adminToken
   ? filteredRoutes.filter((route) => route.name !== "Sign In")
   : allRoutes;
 

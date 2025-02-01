@@ -7,33 +7,41 @@ import Widget from "components/widget/Widget";
 
 const Dashboard = () => {
   const [data, setData] = useState({
-    vendorCustomers: 0,
-    vendorSubadmins: 0,
+    customerCount: 0,
+    subadminCount: 0,
     averageDailyCount: 0,
+    lastTenCustomers: [],
   });
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [vendorCustomersRes, vendorSubadminsRes, dailyCountRes] =
-          await Promise.all([
-            fetch(
-              "https://driving.shellcode.cloud/api/vendors/2/customers/count"
-            ),
-            fetch(
-              "https://driving.shellcode.cloud/api/vendors/2/subadmins/count"
-            ),
-            fetch("https://driving.shellcode.cloud/api/average-daily-count"),
-          ]);
+        const [
+          customerCountRes,
+          subadminCountRes,
+          averageDailyCountRes,
+          lastTenCustomersRes,
+        ] = await Promise.all([
+          fetch("https://driving.shellcode.cloud/api/admin/customers/count"),
+          fetch("https://driving.shellcode.cloud/api/admin/subadmins/count"),
+          fetch(
+            "https://driving.shellcode.cloud/api/admin/average-daily-count"
+          ),
+          fetch("https://driving.shellcode.cloud/api/admin/last-ten-customers"),
+        ]);
 
-        const vendorCustomersData = await vendorCustomersRes.json();
-        const vendorSubadminsData = await vendorSubadminsRes.json();
-        const dailyCountData = await dailyCountRes.json();
+        const customerCountData = await customerCountRes.json();
+        const subadminCountData = await subadminCountRes.json();
+        const averageDailyCountData = await averageDailyCountRes.json();
+        const lastTenCustomersData = await lastTenCustomersRes.json();
 
         setData({
-          vendorCustomers: vendorCustomersData.totalCustomers,
-          vendorSubadmins: vendorSubadminsData.totalSubadmins,
-          averageDailyCount: parseFloat(dailyCountData.averageDailyCount),
+          customerCount: customerCountData.totalCustomers,
+          subadminCount: subadminCountData.totalSubadmins,
+          averageDailyCount: parseFloat(
+            averageDailyCountData.averageDailyCount
+          ),
+          lastTenCustomers: lastTenCustomersData.customers,
         });
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -50,18 +58,39 @@ const Dashboard = () => {
         <Widget
           icon={<IoDocuments className="h-6 w-6" />}
           title={"Vendor Customers"}
-          subtitle={data.vendorCustomers}
+          subtitle={data.customerCount}
         />
         <Widget
           icon={<MdDashboard className="h-6 w-6" />}
           title={"Vendor Subadmins"}
-          subtitle={data.vendorSubadmins}
+          subtitle={data.subadminCount}
         />
         <Widget
           icon={<MdBarChart className="h-7 w-7" />}
           title={"Average Daily Count"}
           subtitle={data.averageDailyCount.toFixed(2)}
         />
+      </div>
+
+      {/* Display last ten customers */}
+      <div className="mt-5">
+        <h2 className="text-xl font-semibold">Last Ten Customers</h2>
+        <ul className="mt-3">
+          {data.lastTenCustomers.map((customer, index) => (
+            <li key={index} className="border-b py-2">
+              <p>
+                <strong>Email:</strong> {customer.email}
+              </p>
+              <p>
+                <strong>Phone Number:</strong> {customer.phone_number}
+              </p>
+              <p>
+                <strong>Created At:</strong>{" "}
+                {new Date(customer.created_at).toLocaleString()}
+              </p>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

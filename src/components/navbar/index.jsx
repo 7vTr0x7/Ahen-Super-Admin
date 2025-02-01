@@ -1,19 +1,50 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Dropdown from "components/dropdown";
+import toast from "react-hot-toast";
 
 const Navbar = (props) => {
   const { onOpenSidenav, brandText } = props;
   const navigate = useNavigate();
-
   const handleLogout = async () => {
-    // Remove items from localStorage
-    await localStorage.removeItem("vendorToken");
-    await localStorage.removeItem("vendorId");
-    await localStorage.removeItem("subadmin");
+    const token = localStorage.getItem("adminToken"); // Retrieve the stored token
 
-    // Navigate to sign-in page
-    navigate("/auth/sign-in");
+    if (!token) {
+      toast.error("No token found. Please log in first.");
+      return;
+    }
+
+    try {
+      // Send a request to the logout API
+      const response = await fetch(
+        "https://driving.shellcode.cloud/api/admin/logout",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = await response.json();
+      if (!response.ok) {
+        toast.error(data.message || "Logout failed. Please try again.");
+        return;
+      }
+
+      // Remove items from localStorage
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminRole");
+      localStorage.removeItem("pageAccess");
+      localStorage.removeItem("adminEmail"); // If you stored email as an example
+
+      // Navigate to sign-in page
+      navigate("/auth/sign-in");
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Something went wrong. Please try again.");
+    }
   };
 
   return (

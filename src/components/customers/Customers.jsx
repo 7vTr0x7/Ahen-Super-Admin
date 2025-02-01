@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-const DrivingCustomers = () => {
-  const [vendorId, setVendorId] = useState("");
+const Customers = () => {
+  const [adminRole, setAdminRole] = useState("");
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -15,38 +15,59 @@ const DrivingCustomers = () => {
   };
 
   useEffect(() => {
-    // Fetch vendorId from localStorage
-    const storedVendorId = localStorage.getItem("vendorId");
-    if (storedVendorId) {
-      setVendorId(storedVendorId);
+    const storedAdminRole = localStorage.getItem("adminRole");
+    if (storedAdminRole) {
+      setAdminRole(storedAdminRole);
     } else {
-      setError("Vendor ID not found in localStorage.");
+      setError("Admin role not found in localStorage.");
     }
   }, []);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!vendorId) return;
+      if (!adminRole) return;
 
       setLoading(true);
       setError(null);
 
       try {
-        const response = await fetch(
-          `https://driving.shellcode.cloud/api/vendor/${vendorId}/license`
-        );
-        const data = await response.json();
+        const token = localStorage.getItem("adminToken");
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
 
-        if (data.message === "Licenses retrieved successfully") {
-          // Combine learning_license and driving_license into one array
+        let drivingLicenseResponse = null;
+        let learningLicenseResponse = null;
+
+        // Fetch driving license customers if the role allows
+        if (adminRole === "admin" || adminRole === "sub-admin") {
+          drivingLicenseResponse = await fetch(
+            "https://driving.shellcode.cloud/api/admin/getDrivingLicenseCustomers/1",
+            { headers }
+          );
+          learningLicenseResponse = await fetch(
+            "https://driving.shellcode.cloud/api/admin/getLearningLicenseCustomers/1",
+            { headers }
+          );
+        }
+
+        const drivingData = await drivingLicenseResponse.json();
+        const learningData = await learningLicenseResponse.json();
+
+        if (
+          drivingData.message ===
+            "Driving license customers retrieved successfully" &&
+          learningData.message ===
+            "Learning license customers retrieved successfully"
+        ) {
           const combinedCustomers = [
-            ...data.learning_license,
-            ...data.driving_license,
+            ...drivingData.customers,
+            ...learningData.customers,
           ];
           setCustomers(combinedCustomers);
         } else {
           setCustomers([]);
-          setError("No data found for this Vendor ID");
+          setError("No data found for this admin role.");
         }
       } catch (err) {
         setError("Failed to fetch data. Please try again.");
@@ -56,7 +77,7 @@ const DrivingCustomers = () => {
     };
 
     fetchData();
-  }, [vendorId]);
+  }, [adminRole]);
 
   const indexOfLastCustomer = currentPage * customersPerPage;
   const indexOfFirstCustomer = indexOfLastCustomer - customersPerPage;
@@ -176,4 +197,4 @@ const DrivingCustomers = () => {
   );
 };
 
-export default DrivingCustomers;
+export default Customers;
