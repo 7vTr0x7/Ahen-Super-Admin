@@ -13,6 +13,7 @@ import { MdHome, MdLock, MdPerson } from "react-icons/md";
 import ListOfPayments from "components/ListOfPayments";
 import LicenseProgress from "components/LicenseProgress";
 import Notifications from "components/Notifications";
+import Courses from "components/Courses";
 
 // Initial routes array
 const allRoutes = [
@@ -29,6 +30,13 @@ const allRoutes = [
     path: "customers",
     icon: <MdPerson className="h-6 w-6" />,
     component: <Customers />,
+  },
+  {
+    name: "Courses",
+    layout: "/admin",
+    path: "courses",
+    icon: <MdPerson className="h-6 w-6" />,
+    component: <Courses />,
   },
 
   {

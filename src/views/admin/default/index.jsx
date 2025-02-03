@@ -76,7 +76,7 @@ const Dashboard = () => {
       <div className="mt-5">
         <h2 className="mb-4 text-xl font-semibold">Last Ten Customers</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {data.lastTenCustomers.map((customer, index) => (
+          {data?.lastTenCustomers?.map((customer, index) => (
             <div
               key={index}
               className="flex flex-col rounded-lg border bg-white p-4 shadow-lg"
