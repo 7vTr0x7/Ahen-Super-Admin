@@ -94,7 +94,7 @@ const ListOfPayments = () => {
                   {payment.transaction.id}
                 </td>
                 <td className="whitespace-nowrap border p-4">
-                  ${payment.transaction.amount}
+                  {payment.transaction.amount}
                 </td>
                 <td className="whitespace-nowrap border p-4">
                   {payment.transaction.paymentType || "N/A"}

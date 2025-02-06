@@ -25,7 +25,7 @@ const allRoutes = [
     component: <MainDashboard />,
   },
   {
-    name: "Customers",
+    name: "License Customers",
     layout: "/admin",
     path: "customers",
     icon: <MdPerson className="h-6 w-6" />,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 const LicenseProgress = () => {
@@ -6,6 +6,7 @@ const LicenseProgress = () => {
   const [userId, setUserId] = useState("");
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [inputFields, setInputFields] = useState({});
 
   const API_BASE = "https://driving.shellcode.cloud/api/progress";
 
@@ -44,164 +45,269 @@ const LicenseProgress = () => {
     setLoading(false);
   };
 
- const getNextStepButton = () => {
-   if (!progress) return null;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setInputFields({ ...inputFields, [name]: value });
+  };
 
-   switch (progress.status) {
-     case "processing":
-       return licenseType === "learning" ? (
-         <button
-           onClick={() =>
-             updateProgress("test_failed", {
-               application_id: "APP123",
-               test_password: "test123",
-               test_link: "https://test.example.com",
-             })
-           }
-           className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
-         >
-           Set Up Test
-         </button>
-       ) : null;
+  const renderInputFields = () => {
+    if (!progress) return null;
 
-     case "test_failed":
-       return licenseType === "driving" ? (
-         <button
-           onClick={() =>
-             updateProgress("slot_booked", {
-               slot_datetime: new Date().toISOString(),
-               retest_fee_paid: true,
-             })
-           }
-           className="w-full rounded bg-orange-500 p-2 text-white hover:bg-orange-600"
-         >
-           Rebook Slot
-         </button>
-       ) : null;
+    switch (progress.status) {
+      case "processing":
+        return (
+          <div className="space-y-4">
+            <input
+              type="text"
+              name="application_id"
+              placeholder="Application ID"
+              value={inputFields.application_id || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+            <input
+              type="text"
+              name="test_password"
+              placeholder="Test Password"
+              value={inputFields.test_password || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+            <input
+              type="text"
+              name="test_link"
+              placeholder="Test Link"
+              value={inputFields.test_link || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+          </div>
+        );
 
-     case "slot_booked":
-       return (
-         <button
-           onClick={() =>
-             updateProgress("test_pending", {
-               instructor_details: {
-                 name: "John Doe",
-                 image: "instructor_image_url",
-                 vehicle_no: "MH-12-AB-1234",
-                 destination: "Test Center A",
-               },
-             })
-           }
-           className="w-full rounded bg-yellow-500 p-2 text-white hover:bg-yellow-600"
-         >
-           Assign Instructor
-         </button>
-       );
+      case "slot_booked":
+        return (
+          <div className="space-y-4">
+            <input
+              type="datetime-local"
+              name="slot_datetime"
+              value={inputFields.slot_datetime || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+          </div>
+        );
 
-     case "test_pending":
-       return (
-         <button
-           onClick={() => updateProgress("test_passed")}
-           className="w-full rounded bg-green-500 p-2 text-white hover:bg-green-600"
-         >
-           Mark as Passed
-         </button>
-       );
+      case "test_pending":
+        return (
+          <div className="space-y-4">
+            <input
+              type="text"
+              name="instructor_name"
+              placeholder="Instructor Name"
+              value={inputFields.instructor_name || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+            <input
+              type="text"
+              name="vehicle_no"
+              placeholder="Vehicle Number"
+              value={inputFields.vehicle_no || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+            <input
+              type="text"
+              name="destination"
+              placeholder="Destination"
+              value={inputFields.destination || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+          </div>
+        );
 
-     case "test_passed":
-       return licenseType === "learning" ? (
-         <button
-           onClick={() =>
-             updateProgress("license_ready", {
-               license_download_link: "https://example.com/license.pdf",
-             })
-           }
-           className="w-full rounded bg-green-500 p-2 text-white hover:bg-green-600"
-         >
-           Set License Ready
-         </button>
-       ) : (
-         <button
-           onClick={() =>
-             updateProgress("dispatched", { tracking_id: "TRACK123456" })
-           }
-           className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
-         >
-           Dispatch License
-         </button>
-       );
+      case "license_ready":
+        return (
+          <div className="space-y-4">
+            <input
+              type="text"
+              name="license_download_link"
+              placeholder="License Download Link"
+              value={inputFields.license_download_link || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+          </div>
+        );
 
-     case "license_ready":
-       return (
-         <a
-           href={progress.license_download_link}
-           target="_blank"
-           className="w-full rounded bg-purple-500 p-2 text-white hover:bg-purple-600"
-         >
-           Download License
-         </a>
-       );
+      case "dispatched":
+        return (
+          <div className="space-y-4">
+            <input
+              type="text"
+              name="tracking_id"
+              placeholder="Tracking ID"
+              value={inputFields.tracking_id || ""}
+              onChange={handleInputChange}
+              className="w-full rounded-lg border p-3"
+            />
+          </div>
+        );
 
-     case "dispatched":
-       return (
-         <button
-           onClick={() => updateProgress("delivered")}
-           className="w-full rounded bg-purple-500 p-2 text-white hover:bg-purple-600"
-         >
-           Mark as Delivered
-         </button>
-       );
+      default:
+        return null;
+    }
+  };
 
-     case "delivered":
-       return (
-         <span className="block rounded bg-gray-300 p-2 text-center text-gray-700">
-           License Delivered ✅
-         </span>
-       );
+  const getNextStepButton = () => {
+    if (!progress) return null;
 
-     default:
-       return null;
-   }
- };
+    switch (progress.status) {
+      case "processing":
+        return (
+          <button
+            onClick={() =>
+              updateProgress("test_failed", {
+                application_id: inputFields.application_id,
+                test_password: inputFields.test_password,
+                test_link: inputFields.test_link,
+              })
+            }
+            className="w-full rounded-lg bg-blue-600 p-3 text-white hover:bg-blue-700"
+          >
+            Set Up Test
+          </button>
+        );
 
+      case "test_failed":
+        return (
+          <button
+            onClick={() =>
+              updateProgress("slot_booked", {
+                slot_datetime: inputFields.slot_datetime,
+                retest_fee_paid: true,
+              })
+            }
+            className="w-full rounded-lg bg-orange-600 p-3 text-white hover:bg-orange-700"
+          >
+            Rebook Slot
+          </button>
+        );
+
+      case "slot_booked":
+        return (
+          <button
+            onClick={() =>
+              updateProgress("test_pending", {
+                instructor_details: {
+                  name: inputFields.instructor_name,
+                  vehicle_no: inputFields.vehicle_no,
+                  destination: inputFields.destination,
+                },
+              })
+            }
+            className="w-full rounded-lg bg-yellow-600 p-3 text-white hover:bg-yellow-700"
+          >
+            Assign Instructor
+          </button>
+        );
+
+      case "test_pending":
+        return (
+          <button
+            onClick={() => updateProgress("test_passed")}
+            className="w-full rounded-lg bg-green-600 p-3 text-white hover:bg-green-700"
+          >
+            Mark as Passed
+          </button>
+        );
+
+      case "test_passed":
+        return (
+          <button
+            onClick={() =>
+              updateProgress("license_ready", {
+                license_download_link: inputFields.license_download_link,
+              })
+            }
+            className="w-full rounded-lg bg-green-600 p-3 text-white hover:bg-green-700"
+          >
+            Set License Ready
+          </button>
+        );
+
+      case "license_ready":
+        return (
+          <a
+            href={progress.license_download_link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full rounded-lg bg-purple-600 p-3 text-center text-white hover:bg-purple-700"
+          >
+            Download License
+          </a>
+        );
+
+      case "dispatched":
+        return (
+          <button
+            onClick={() => updateProgress("delivered")}
+            className="w-full rounded-lg bg-purple-600 p-3 text-white hover:bg-purple-700"
+          >
+            Mark as Delivered
+          </button>
+        );
+
+      case "delivered":
+        return (
+          <span className="block rounded-lg bg-gray-200 p-3 text-center text-gray-700">
+            License Delivered ✅
+          </span>
+        );
+
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="mx-auto mt-10 max-w-xl rounded-lg bg-white p-6 shadow-lg">
+    <div className="mx-auto mt-10 max-w-xl rounded-xl bg-white p-8 shadow-xl">
       <Toaster />
-      <h2 className="mb-4 text-2xl font-bold text-gray-800">
-        License Progress
-      </h2>
-      <label className="block font-medium text-gray-600">
-        Select License Type
-      </label>
-      <select
-        value={licenseType}
-        onChange={(e) => setLicenseType(e.target.value)}
-        className="mb-4 w-full rounded border p-2"
-      >
-        <option value="learning">Learning License</option>
-        <option value="driving">Driving License</option>
-      </select>
-      <label className="block font-medium text-gray-600">User ID</label>
-      <input
-        type="text"
-        value={userId}
-        onChange={(e) => setUserId(e.target.value)}
-        className="mb-4 w-full rounded border p-2"
-        placeholder="Enter User ID"
-      />
+      <h2 className="mb-6 text-xl font-bold">License Progress Tracker</h2>
+      <div className="mb-4">
+        <label>Select License Type</label>
+        <select
+          value={licenseType}
+          onChange={(e) => setLicenseType(e.target.value)}
+          className="mt-1 w-full border border-gray-300 p-2"
+        >
+          <option value="learning">Learning License</option>
+          <option value="driving">Driving License</option>
+        </select>
+      </div>
+      <div className="mb-4">
+        <label>User ID</label>
+        <input
+          type="text"
+          value={userId}
+          onChange={(e) => setUserId(e.target.value)}
+          placeholder="Enter User ID"
+          className="mt-1 w-full border border-gray-300 p-2"
+        />
+      </div>
       <button
         onClick={fetchProgress}
-        className="w-full rounded bg-blue-500 p-2 text-white hover:bg-blue-600"
         disabled={loading}
+        className="w-full bg-blue-600 p-2 text-white hover:bg-blue-700"
       >
         {loading ? "Loading..." : "Fetch Progress"}
       </button>
+
       {progress && (
-        <div className="mt-6 rounded bg-gray-100 p-4">
-          <h3 className="text-xl font-bold">
-            Current Status: {progress.status}
-          </h3>
+        <div className="mt-6 rounded-md bg-gray-50 p-4">
+          <h3>Current Status: {progress.status}</h3>
+          {renderInputFields()}
           {getNextStepButton()}
         </div>
       )}
